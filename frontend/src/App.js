@@ -48,7 +48,7 @@ function App() {
     //     "public_key": "99V2Wq2yDCoxr9VorwuEFaEEj5FGxpacixFHTeDACh3u",
     //     "seed":
     const td = {
-      heading: ['Address', 'Private Key', 'Public Key', 'Seed'],
+      heading: ['', 'Address', 'Private Key', 'Public Key', 'Seed'],
       rows: [
         { ...data.eth, name: 'ETH'},
         { ...data.waves, name: 'WAVES'},

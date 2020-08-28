@@ -63,6 +63,7 @@ export default function SimpleTable(props) {
         <TableBody>
           {rows.map((row) => (
             <TableRow key={row.address}>
+              <SimpleTableCell value={row.name} />
               <SimpleTableCell value={row.address} />
               <SimpleTableCell value={row.private_key} type="password" />
               <SimpleTableCell value={row.public_key} />
