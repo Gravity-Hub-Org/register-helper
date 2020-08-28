@@ -59,7 +59,9 @@ func (rc *ResponseController) GenerateKeys (w http.ResponseWriter, req *http.Req
 
 	addHeaders(&w)
 
-	_, _ = fmt.Fprint(w, result)
+	marshalledResult, _ := json.Marshal(result)
+
+	_, _ = fmt.Fprint(w, string(marshalledResult))
 }
 
 func (rc *ResponseController) HandlePass (w http.ResponseWriter, req *http.Request) {

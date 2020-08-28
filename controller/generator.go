@@ -1,17 +1,26 @@
 package controller
 
 import (
-	"encoding/hex"
+	"crypto/ecdsa"
+	//"encoding/hex"
+	"fmt"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 	eth "github.com/ethereum/go-ethereum/crypto"
 	"github.com/wavesplatform/go-lib-crypto"
+	"log"
 )
 
 type GeneratorController struct {}
 
 
-type GeneratedEthWallet struct {}
+type GeneratedEthWallet struct {
+	Address string `json:"address"`
+	PrivateKey string `json:"private_key"`
+	PublicKey string `json:"public_key"`
+}
 
 type GeneratedWavesWallet struct {
+	Address wavesplatform.Address `json:"address"`
 	PrivateKey wavesplatform.PrivateKey `json:"private_key"`
 	PublicKey wavesplatform.PublicKey `json:"public_key"`
 	Seed wavesplatform.Seed `json:"seed"`
@@ -19,32 +28,62 @@ type GeneratedWavesWallet struct {
 
 type GeneratedWallet struct {
 	Waves *GeneratedWavesWallet `json:"waves"`
+	Eth *GeneratedEthWallet `json:"eth"`
 }
 
 
-func (c *GeneratorController) generateEth() {
+func (c *GeneratorController) generateEth() *GeneratedEthWallet {
 
 	// Create an account
 	key, _ := eth.GenerateKey()
 
 	// Get the address
 	address := eth.PubkeyToAddress(key.PublicKey).Hex()
-	// 0x8ee3333cDE801ceE9471ADf23370c48b011f82a6
 
 	// Get the private key
-	privateKey := hex.EncodeToString(key.D.Bytes())
-	// 05b14254a1d0c77a49eae3bdf080f926a2df17d8e2ebdf7af941ea001481e57f
-}
-func (c *GeneratorController) generateWaves() {}
+	//privateKey := hex.EncodeToString(key.D.Bytes())
+	privateKeyBytes := eth.FromECDSA(key)
 
-func (c *GeneratorController) Generate() *GeneratedWallet {
+	convertedPrivateKey := hexutil.Encode(privateKeyBytes)[2:]
+
+	fmt.Println(convertedPrivateKey) // fad9c8855b740a0b7ed4c221dbad0f33a83a49cad6b3fe8d5817ac83d38b6a19
+
+	publicKey := key.Public()
+	publicKeyECDSA, ok := publicKey.(*ecdsa.PublicKey)
+	if !ok {
+		log.Fatal("error casting public key to ECDSA")
+	}
+
+	publicKeyBytes := eth.FromECDSAPub(publicKeyECDSA)
+
+	convertedPubKey := hexutil.Encode(publicKeyBytes)[4:]
+
+	fmt.Println(convertedPubKey)
+
+
+	return &GeneratedEthWallet{
+		Address:    address,
+		PrivateKey: convertedPrivateKey,
+		PublicKey:  convertedPubKey,
+	}
+}
+
+func (c *GeneratorController) generateWaves() *GeneratedWavesWallet {
 	wavesGen := wavesplatform.NewWavesCrypto()
 	seed := wavesGen.RandomSeed()
 
 	//fmt.Println("SEED:", seed)
 
-	waves := &GeneratedWavesWallet { PrivateKey: wavesGen.PrivateKey(seed), PublicKey: wavesGen.PublicKey(seed), Seed: seed }
+	wallet := &GeneratedWavesWallet { PrivateKey: wavesGen.PrivateKey(seed), PublicKey: wavesGen.PublicKey(seed), Seed: seed }
 
-	return &GeneratedWallet{ Waves: waves }
+	wallet.Address = wavesGen.AddressFromSeed(wallet.Seed, wavesplatform.MainNet)
+
+	return wallet
+}
+
+func (c *GeneratorController) Generate() *GeneratedWallet {
+	waves, eth := c.generateWaves(), c.generateEth()
+
+	return &GeneratedWallet{ Waves: waves, Eth: eth }
 }
 
