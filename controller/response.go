@@ -21,9 +21,9 @@ func (rc *ResponseController) ValidateLogin (w http.ResponseWriter, req *http.Re
 
 func addHeaders(w *http.ResponseWriter) {
 	(*w).Header().Set("Access-Control-Allow-Origin", "*")
-	(*w).Header().Set("Access-Control-Allow-Headers", "*")
-	(*w).Header().Set("Access-Control-Allow-Credentials", "true")
-	(*w).Header().Set("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT")
+	//(*w).Header().Set("Access-Control-Allow-Headers", "Origin, Content-Type, Accept")
+	//(*w).Header().Set("Access-Control-Allow-Credentials", "true")
+	//(*w).Header().Set("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS, POST, PUT")
 }
 
 func PrivateKeyToEncryptedPEM(key *rsa.PrivateKey, pwd string) ([]byte, error) {
@@ -46,6 +46,22 @@ func PrivateKeyToEncryptedPEM(key *rsa.PrivateKey, pwd string) ([]byte, error) {
 	return pem.EncodeToMemory(block), nil
 }
 
+func (rc *ResponseController) keysGenerator () *GeneratorController {
+	return &GeneratorController{}
+}
+
+func (rc *ResponseController) GenerateKeys (w http.ResponseWriter, req *http.Request) {
+	if req.Method != "GET" { return }
+
+	result := rc.keysGenerator().Generate()
+
+	w.Header().Set("Content-Type", "application/json")
+
+	addHeaders(&w)
+
+	_, _ = fmt.Fprint(w, result)
+}
+
 func (rc *ResponseController) HandlePass (w http.ResponseWriter, req *http.Request) {
 	if req.Method != "POST" { return }
 
@@ -60,8 +76,7 @@ func (rc *ResponseController) HandlePass (w http.ResponseWriter, req *http.Reque
 	}()
 
 	if password == "" {
-		fmt.Printf("No pass provided")
-		return
+		fmt.Printf("No pass provided. Going further. \n")
 	}
 
 	privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
@@ -71,9 +86,8 @@ func (rc *ResponseController) HandlePass (w http.ResponseWriter, req *http.Reque
 
 	marshalledPrivateKey, _ := PrivateKeyToEncryptedPEM(privateKey, password)
 
-	w.Header().Set("Content-Type", "text/plain")
-	w.Header().Set("Content-Disposition", "inline")
-	w.Header().Set("filename", fmt.Sprintf("private_key_%v", time.Now().Format(time.RFC822)))
+	w.Header().Set("Content-Type", "octet/stream")
+	w.Header().Set("Filename", fmt.Sprintf("private_key_%v", time.Now().Format(time.RFC822)))
 
 	addHeaders(&w)
 
