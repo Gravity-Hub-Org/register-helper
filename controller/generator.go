@@ -2,6 +2,8 @@ package controller
 
 import (
 	"crypto/ecdsa"
+	"crypto/ed25519"
+	"crypto/rand"
 	//"encoding/hex"
 	"fmt"
 	"github.com/ethereum/go-ethereum/common/hexutil"
@@ -29,6 +31,14 @@ type GeneratedWavesWallet struct {
 type GeneratedWallet struct {
 	Waves *GeneratedWavesWallet `json:"waves"`
 	Eth *GeneratedEthWallet `json:"eth"`
+	InternalConfig *internalNodeConfig `json:"internal_config"`
+}
+
+type internalNodeConfig struct {
+	// SEED
+	Waves string `json:"waves"`
+	Ethereum string `json:"ethereum"`
+	Ledger string `json:"ledger"`
 }
 
 
@@ -41,12 +51,9 @@ func (c *GeneratorController) generateEth() *GeneratedEthWallet {
 	address := eth.PubkeyToAddress(key.PublicKey).Hex()
 
 	// Get the private key
-	//privateKey := hex.EncodeToString(key.D.Bytes())
 	privateKeyBytes := eth.FromECDSA(key)
 
 	convertedPrivateKey := hexutil.Encode(privateKeyBytes)[2:]
-
-	fmt.Println(convertedPrivateKey) // fad9c8855b740a0b7ed4c221dbad0f33a83a49cad6b3fe8d5817ac83d38b6a19
 
 	publicKey := key.Public()
 	publicKeyECDSA, ok := publicKey.(*ecdsa.PublicKey)
@@ -57,9 +64,6 @@ func (c *GeneratorController) generateEth() *GeneratedEthWallet {
 	publicKeyBytes := eth.FromECDSAPub(publicKeyECDSA)
 
 	convertedPubKey := hexutil.Encode(publicKeyBytes)[4:]
-
-	fmt.Println(convertedPubKey)
-
 
 	return &GeneratedEthWallet{
 		Address:    address,
@@ -72,18 +76,32 @@ func (c *GeneratorController) generateWaves() *GeneratedWavesWallet {
 	wavesGen := wavesplatform.NewWavesCrypto()
 	seed := wavesGen.RandomSeed()
 
-	//fmt.Println("SEED:", seed)
-
-	wallet := &GeneratedWavesWallet { PrivateKey: wavesGen.PrivateKey(seed), PublicKey: wavesGen.PublicKey(seed), Seed: seed }
+	wallet := &GeneratedWavesWallet {
+		PrivateKey: wavesGen.PrivateKey(seed),
+		PublicKey: wavesGen.PublicKey(seed), Seed: seed }
 
 	wallet.Address = wavesGen.AddressFromSeed(wallet.Seed, wavesplatform.MainNet)
 
 	return wallet
 }
 
+func (c *GeneratorController) mapWalletsToInternalConfig (waves *GeneratedWavesWallet, eth *GeneratedEthWallet) *internalNodeConfig {
+	fmt.Printf("ETH Private key: %v; Length: %v; \n", eth.PrivateKey, len([]byte(eth.PrivateKey)))
+	ethereumHexPrivateKey := hexutil.Encode([]byte(eth.PrivateKey))
+
+	_, ledgerPrivateKey, _ := ed25519.GenerateKey(rand.Reader)
+	ledgerHexPrivateKey := hexutil.Encode([]byte(ledgerPrivateKey))
+
+	return &internalNodeConfig{ Waves: string(waves.Seed), Ethereum: ethereumHexPrivateKey, Ledger: ledgerHexPrivateKey }
+}
+
 func (c *GeneratorController) Generate() *GeneratedWallet {
 	waves, eth := c.generateWaves(), c.generateEth()
+	wallet := &GeneratedWallet{ Waves: waves, Eth: eth }
 
-	return &GeneratedWallet{ Waves: waves, Eth: eth }
+	internalConfig := c.mapWalletsToInternalConfig(waves, eth)
+	wallet.InternalConfig = internalConfig
+
+	return wallet
 }
 

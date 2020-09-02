@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export const baseURL = "http://localhost:8091";
+export const baseURL = process.env.ENDPOINT || "http://localhost:8091";
 
 // export interface Root {
 //     waves: Waves;
