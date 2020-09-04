@@ -70,7 +70,8 @@ function EnterPassword(props) {
 
     setValidationErrors(getValidationErrorsDefault());
 
-    props.onNext(password);
+    props.handlePasswordUpdate(formState.password);
+    props.onNext();
   };
 
   const handleFormChange = (event) => {

@@ -4,10 +4,11 @@ import { TransitionsModal } from "./Modal";
 
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
-import SimpleTable from "./Table";
 import AppContainer from "./base/App";
 
 import EnterPassword from "./registration/EnterPassword";
+import DeploymentSuccess from "./registration/DeploymentSuccess";
+import KeysTable from "./registration/KeysTable";
 import { HeadingTitle } from "./base/Title";
 
 import logo from "./logo.svg";
@@ -16,7 +17,7 @@ import "./App.css";
 import { requestKeyGeneration, requestGeneratedKeys } from "./services";
 
 function App() {
-  const [stepState, setStepState] = useState(0);
+  const [stepState, setStepState] = useState(1);
   const [formState, setFormState] = useState({ password: "" });
   const [fileState, setFileState] = useState({});
   const [tableDataState, setTableDataState] = useState({});
@@ -25,20 +26,6 @@ function App() {
     setFormState({
       password: event.target.value,
     });
-  };
-
-  const handleGenerateKeys = async () => {
-    const data = await requestGeneratedKeys();
-
-    const td = {
-      heading: ["", "Address", "Private Key", "Public Key", "Seed"],
-      rows: [
-        { ...data.eth, name: "ETH" },
-        { ...data.waves, name: "WAVES" },
-      ],
-    };
-
-    return td;
   };
 
   const handleNextStep = () => {
@@ -57,22 +44,28 @@ function App() {
     setStepState(stepState + 1)
   };
 
+  const handlePasswordUpdate = password => {
+    setFormState({ password })
+  }
+
   const stepsMap = {
-    [0]: <EnterPassword onNext={handleNextStep} />,
-    [1]: (
-      <>
-        <a href={fileState.href} download={"privkey"}>
-          <Button variant="contained" color="primary">
-            Download Pair
-          </Button>
-        </a>
-      </>
-    ),
-    [2]: (
-      <>
-        <SimpleTable tableData={tableDataState} />
-      </>
-    ),
+    [0]: <EnterPassword onNext={handleNextStep} onPasswordUpdate={handlePasswordUpdate} />,
+    // [1]: (
+    //   <>
+    //     <a href={fileState.href} download={"privkey"}>
+    //       <Button variant="contained" color="primary">
+    //         Download Pair
+    //       </Button>
+    //     </a>
+    //   </>
+    // ),
+    [1]: <KeysTable />,
+    // [2]: <DeploymentSuccess />,
+    // [2]: (
+    //   <>
+    //     <SimpleTable tableData={tableDataState} />
+    //   </>
+    // ),
   };
 
   const currentStep = stepsMap[stepState];
