@@ -38,23 +38,27 @@ function App() {
       ],
     };
 
-    setTableDataState(td);
-    setStepState(2);
+    return td;
+  };
+
+  const handleNextStep = () => {
+    // setTableDataState(td);
+    // setStepState(2);
+
+    // switch (stepState) {
+    //   case 0:
+    //     setStepState(1);
+    //     break
+    //   case 1:
+    //     setStepState(2);
+    //     break
+    // }
+
+    setStepState(stepState + 1)
   };
 
   const stepsMap = {
-    [0]: (
-      // <>
-      //   <Button
-      //     variant="contained"
-      //     color="primary"
-      //     onClick={handleGenerateKeys}
-      //   >
-      //     Generate Keys
-      //   </Button>
-      // </>
-      <EnterPassword />
-    ),
+    [0]: <EnterPassword onNext={handleNextStep} />,
     [1]: (
       <>
         <a href={fileState.href} download={"privkey"}>

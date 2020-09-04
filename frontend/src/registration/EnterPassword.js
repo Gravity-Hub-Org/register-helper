@@ -29,19 +29,84 @@ const InputFlexBox = styled.div`
   }
 `;
 
+const ErrorTitle = styled(InputTitle)`
+  color: red;
+  visibility: ${(props) => (!props.isValid ? "unset" : "hidden")};
+`;
+
+const getValidationErrorsDefault = () => ({
+  message: "No errors",
+  isValid: true,
+});
 function EnterPassword(props) {
+  const [validationErrors, setValidationErrors] = React.useState(
+    getValidationErrorsDefault()
+  );
+  const [formState, setFormState] = React.useState({
+    password: "",
+    repeatedPassword: "",
+  });
+
+  const handleValidation = () => {
+    const { password, repeatedPassword } = formState;
+
+    if (!password || !repeatedPassword) {
+      return Error("Enter valid password");
+    }
+
+    if (password !== repeatedPassword) {
+      return Error("Passwords must match");
+    }
+  };
+
+  const handleNext = () => {
+    const validationError = handleValidation();
+
+    if (validationError) {
+      setValidationErrors({ message: validationError.message, isValid: false });
+
+      return;
+    }
+
+    setValidationErrors(getValidationErrorsDefault());
+
+    props.onNext(password);
+  };
+
+  const handleFormChange = (event) => {
+    const field = event.target.name;
+
+    setFormState({
+      ...formState,
+      [field]: event.target.value,
+    });
+  };
+
   return (
     <Body>
       <FlexBox>
         <InputFlexBox>
+          <ErrorTitle isValid={validationErrors.isValid}>
+            {validationErrors.message}
+          </ErrorTitle>
           <InputTitle>Enter node password</InputTitle>
-          <Input />
+          <Input
+            name="password"
+            value={formState.password}
+            onChange={handleFormChange}
+            type="password"
+          />
         </InputFlexBox>
         <InputFlexBox>
           <InputTitle>Repeat node password</InputTitle>
-          <Input />
+          <Input
+            name="repeatedPassword"
+            value={formState.repeatedPassword}
+            onChange={handleFormChange}
+            type="password"
+          />
         </InputFlexBox>
-        <GradientButton>Next</GradientButton>
+        <GradientButton onClick={handleNext}>Next</GradientButton>
       </FlexBox>
     </Body>
   );
