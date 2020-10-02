@@ -50,12 +50,20 @@
 .table-base .inner {
   white-space: nowrap;
   overflow: hidden;
-  /* background: #fc0; */
+
+  display: flex;
+  flex-direction: row;
+
   padding: 5px;
   text-overflow: ellipsis;
-  max-width: 200px
+  max-width: 200px;
+  
+  margin: auto;
 }
-.table-base .inner div { cursor: pointer; }
+.table-base .inner div { 
+  padding: 0 12px;
+  cursor: pointer;
+}
 .table-base .inner input {
   color: black;
   background: none;

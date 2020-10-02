@@ -12,7 +12,7 @@ const TableContainer = styled.div`
   overflow-x: unset !important;
 
   & table {
-    width: 100%;
+    width: calc(100vw - 120px);
     border-radius: 6px;
   }
 
@@ -93,6 +93,7 @@ function SimpleTableCell(props) {
       nodeRef.current.select();
       document.execCommand("copy");
       setNodeType(props.type);
+      nodeRef.current.blur();
     }
   });
 
