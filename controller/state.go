@@ -14,6 +14,8 @@ const (
 
 type StateController struct {
 	State AppState
+	GeneratedWallet *GeneratedWallet
+	WalletPassword string
 }
 
 func (sc *StateController) New() *StateController {

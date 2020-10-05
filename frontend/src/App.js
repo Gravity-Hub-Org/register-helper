@@ -84,7 +84,7 @@ function App() {
 
   const stepsMap = {
     [0]: <EnterPassword onNext={handleNextStep} onPasswordUpdate={handlePasswordUpdate} />,
-    [1]: <KeysTable appState={applicationStateData} isAppStateEmpty={isAppStateEmpty} />,
+    [1]: <KeysTable onNext={handleNextStep} appState={applicationStateData} isAppStateEmpty={isAppStateEmpty} />,
   };
 
   const currentStep = stepsMap[stepState];

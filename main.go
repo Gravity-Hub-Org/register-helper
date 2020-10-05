@@ -20,9 +20,9 @@ func main () {
 	stateController := (&controller.StateController{}).New()
 	rc := (&controller.ResponseController{}).New(stateController)
 
-	http.HandleFunc("/handle-pass", rc.HandlePass)
 	http.HandleFunc("/generate-keys", rc.GenerateKeys)
 	http.HandleFunc("/state", rc.ApplicationState)
+	http.HandleFunc("/download", rc.DownloadWallet)
 
 	fmt.Printf("Register Helper is listening on port: %s\n", port)
 	_ = http.ListenAndServe(fmt.Sprintf(":%s", port), nil)
