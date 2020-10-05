@@ -14,7 +14,7 @@ import { HeadingTitle } from "./base/Title";
 import logo from "./logo.svg";
 import "./App.css";
 
-import { requestKeyGeneration, requestGeneratedKeys, fetchKeyGeneratorState } from "./services/base";
+import { downloadGeneratedKeys, requestGeneratedKeys, fetchKeyGeneratorState } from "./services/base";
 
 
 function App() {
@@ -26,7 +26,11 @@ function App() {
   const [tableDataState, setTableDataState] = useState({});
 
   const isAppStateEmpty = Object.keys(applicationStateData) === 0
+  const { password: currentPassword } = formState
+
   const { value: applicationState, message: applicationStateMessage } = applicationStateData
+
+  const enterPasswordTitle = !isAppStateEmpty && [1,2].includes(applicationState) && "Download Keys Pair" || "Next"
 
   const onNextStepError = (message) => {
     alert(message)
@@ -42,22 +46,17 @@ function App() {
     try {
       const appStateData = await fetchKeyGeneratorState()
       const { value: appState, message: appStateMessage } = appStateData
-      // console.log({ appState, appStateMessage })
 
       setApplicationStateData(appStateData)
     } catch(err) { console.log({ err }) } 
   }
 
   React.useEffect(() => {
-    if (applicationState === 1 || applicationState === 2) {
-      setStepState(1)
-    } 
-  }, [applicationState])
-
-  React.useEffect(() => {
     fetchState()
   }, [])
 
+  console.log({ form: formState })
+  console.log({ currentPassword })
 
   React.useEffect(() => {
     checkForError()
@@ -69,13 +68,23 @@ function App() {
     });
   };
 
-  const handleNextStep = () => {
+  const handleNextStep = async () => {
     if (applicationState === 1 || applicationState === 2) {
-      checkForError()
+      // checkForError()
+      try {
+        await downloadGeneratedKeys(currentPassword)
+      } catch (err) {
+        alert(err.message)
+      }
+
       return
     }
 
-    setStepState(stepState + 1)
+    if (stepState === 0) {
+      setStepState(stepState + 1)
+    } else {
+      checkForError()
+    }
   };
 
   const handlePasswordUpdate = password => {
@@ -83,8 +92,8 @@ function App() {
   }
 
   const stepsMap = {
-    [0]: <EnterPassword onNext={handleNextStep} onPasswordUpdate={handlePasswordUpdate} />,
-    [1]: <KeysTable onNext={handleNextStep} appState={applicationStateData} isAppStateEmpty={isAppStateEmpty} />,
+    [0]: <EnterPassword onNext={handleNextStep} appState={applicationStateData} onPasswordUpdate={handlePasswordUpdate} title={enterPasswordTitle}/>,
+    [1]: <KeysTable onNext={handleNextStep} appState={applicationStateData} isAppStateEmpty={isAppStateEmpty} form={formState}/>,
   };
 
   const currentStep = stepsMap[stepState];

@@ -2,8 +2,9 @@ import React from "react";
 import styled from "styled-components";
 import { AppColor } from "../styled/global";
 import { Input, InputTitle } from "../base/Input";
-import { GradientButton } from "../base/Button";
+import { GradientButton, GradientLink } from "../base/Button";
 import SimpleTable, { mapGeneratedKeysToTable } from "./Table";
+import { downloadGeneratedKeys, baseURL } from '../services/base'
 
 const ButtonsContainer = styled.div`
   display: flex;
@@ -15,9 +16,18 @@ const ButtonsContainer = styled.div`
 `;
 
 function KeysTable(props) {
-  const { onNext, appState = {}, isAppStateEmpty } = props;
+  const { onNext, appState = {}, isAppStateEmpty, form } = props;
+  const { password } = form;
   const [tableDataSource, setTableDataSource] = React.useState(null);
   const { value: applicationState, message: applicationStateMessage } = appState
+
+  const onDownloadKeys = async () => {
+    try {
+      await downloadGeneratedKeys(password)
+    } catch (err) {
+      console.log({ err })
+    }
+  }
 
   React.useEffect(() => {
     if (tableDataSource) return;
@@ -26,17 +36,13 @@ function KeysTable(props) {
 
     (async () => {
       try {
-        const td = await mapGeneratedKeysToTable();
+        const td = await mapGeneratedKeysToTable(password);
         setTableDataSource(td);
       } catch (err) {
         console.log({ err })
       }
     })();
   }, [tableDataSource, applicationState]);
-
-  if (applicationState !== 0) {
-    return applicationStateMessage || null
-  }
 
   if (!tableDataSource) {
     return "Loading...";
@@ -46,7 +52,7 @@ function KeysTable(props) {
     <div>
       <SimpleTable tableData={tableDataSource} />
       <ButtonsContainer>
-        <GradientButton>Get Private Keys</GradientButton>
+        <GradientLink target="_blank" download href={`${baseURL}/download?password=${password}`}>Get Private Keys</GradientLink>
         <GradientButton onClick={onNext}>Next</GradientButton>
       </ButtonsContainer>
     </div>

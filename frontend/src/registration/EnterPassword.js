@@ -2,7 +2,9 @@ import React from "react";
 import styled from "styled-components";
 import { AppColor } from "../styled/global";
 import { Input, InputTitle } from "../base/Input";
-import { GradientButton } from "../base/Button";
+import { GradientButton, GradientLink } from "../base/Button";
+import { baseURL } from '../services/base'
+
 
 const Body = styled.div`
   background: ${AppColor.bodyView};
@@ -39,6 +41,8 @@ const getValidationErrorsDefault = () => ({
   isValid: true,
 });
 function EnterPassword(props) {
+  const { title, appState } = props
+
   const [validationErrors, setValidationErrors] = React.useState(
     getValidationErrorsDefault()
   );
@@ -70,7 +74,6 @@ function EnterPassword(props) {
 
     setValidationErrors(getValidationErrorsDefault());
 
-    props.onPasswordUpdate(formState.password);
     props.onNext();
   };
 
@@ -82,6 +85,20 @@ function EnterPassword(props) {
       [field]: event.target.value,
     });
   };
+
+  React.useEffect(() => {
+    if (validationErrors.isValid) {
+      props.onPasswordUpdate(formState.password);
+    }
+  }, [validationErrors.isValid, formState.password])
+
+  const { value: applicationState, message: applicationStateMessage } = appState
+
+  const nextButton = applicationState !== 0 ? (
+    <GradientLink target="_blank" download href={`${baseURL}/download?password=${formState.password}`}>{title}</GradientLink>
+  ) : (
+    <GradientButton onClick={handleNext}>{title}</GradientButton>
+  )
 
   return (
     <Body>
@@ -107,7 +124,7 @@ function EnterPassword(props) {
             type="password"
           />
         </InputFlexBox>
-        <GradientButton onClick={handleNext}>Next</GradientButton>
+        {nextButton}
       </FlexBox>
     </Body>
   );

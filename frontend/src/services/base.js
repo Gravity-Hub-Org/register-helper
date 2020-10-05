@@ -13,8 +13,10 @@ export async function fetchKeyGeneratorState() {
   return response.data; // Root
 }
 
-export async function requestGeneratedKeys() {
-  const response = await axios.get("/generate-keys", {
+export async function requestGeneratedKeys(password) {
+  const response = await axios.post("/generate-keys", {
+    password: password
+  }, {
     baseURL: baseURL,
     headers: {
       "Content-Type": "application/json",
@@ -24,22 +26,34 @@ export async function requestGeneratedKeys() {
   return response.data; // Root
 }
 
-export async function requestKeyGeneration(pass) {
-  const response = await axios.post(
-    "/handle-pass",
-    {
-      password: pass,
+export async function downloadGeneratedKeys(password) {
+  const response = await axios.get("/download", {
+    baseURL: baseURL,
+    query: { password },
+    headers: {
+      "Content-Type": "application/json",
     },
-    {
-      baseURL: baseURL,
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }
-  );
+  });
 
-  const contentType = response.headers["Content-Type"];
-  const filename = response.headers["Filename"];
-
-  return { contentType, filename, data: response.data };
+  return response.data; // Root
 }
+
+// export async function requestKeyGeneration(pass) {
+//   const response = await axios.post(
+//     "/handle-pass",
+//     {
+//       password: pass,
+//     },
+//     {
+//       baseURL: baseURL,
+//       headers: {
+//         "Content-Type": "application/json",
+//       },
+//     }
+//   );
+
+//   const contentType = response.headers["Content-Type"];
+//   const filename = response.headers["Filename"];
+
+//   return { contentType, filename, data: response.data };
+// }

@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { AppColor, AppFonts } from "../styled/global";
 
-export const GradientButton = styled.button`
+const gradientStyle = `
   background: linear-gradient(
     345.07deg,
     #262940 -63.33%,
@@ -37,4 +37,13 @@ export const GradientButton = styled.button`
   }
 
   transition: background 0.5s ease-in-out, color 0.5s ease-in-out;
+`
+
+export const GradientButton = styled.button`${gradientStyle}`;
+
+export const GradientLink = styled.a`
+  ${gradientStyle}
+  
+  text-decoration: none;
+  padding: 8px;
 `;

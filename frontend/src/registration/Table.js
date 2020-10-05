@@ -70,8 +70,8 @@ const useStyles = makeStyles({
   table: {},
 });
 
-export const mapGeneratedKeysToTable = async () => {
-  const data = await requestGeneratedKeys();
+export const mapGeneratedKeysToTable = async (password) => {
+  const data = await requestGeneratedKeys(password);
 
   const td = {
     heading: ["", "Address", "Private Key", "Public Key", "Seed"],

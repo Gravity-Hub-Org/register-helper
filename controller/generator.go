@@ -1,6 +1,7 @@
 package controller
 
 import (
+	//"bytes"
 	"crypto/ecdsa"
 	"crypto/ed25519"
 	"crypto/rand"
@@ -9,6 +10,7 @@ import (
 	eth "github.com/ethereum/go-ethereum/crypto"
 	"github.com/wavesplatform/go-lib-crypto"
 	"log"
+	"encoding/json"
 )
 
 type GeneratorController struct {}
@@ -30,6 +32,12 @@ type GeneratedWallet struct {
 	Waves *GeneratedWavesWallet `json:"waves"`
 	Eth *GeneratedEthWallet `json:"eth"`
 	InternalConfig *internalNodeConfig `json:"internal_config"`
+}
+
+func (wallet *GeneratedWallet) Bytes() []byte {
+	packed, _ := json.Marshal(wallet)
+
+	return packed
 }
 
 type internalNodeConfig struct {
@@ -102,4 +110,3 @@ func (c *GeneratorController) Generate() *GeneratedWallet {
 
 	return wallet
 }
-

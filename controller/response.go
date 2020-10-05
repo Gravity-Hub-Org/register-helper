@@ -8,7 +8,6 @@ import (
 	"encoding/pem"
 	"fmt"
 	"net/http"
-	"time"
 )
 
 type ResponseController struct {
@@ -41,6 +40,9 @@ func (rc *ResponseController) New(stateDelegate *StateController) *ResponseContr
 	return controller
 }
 
+func handleOptionsRequest(w http.ResponseWriter) {
+	w.WriteHeader(http.StatusOK)
+}
 
 func passError(w http.ResponseWriter, message string) {
 	w.WriteHeader(http.StatusBadRequest)
@@ -54,9 +56,9 @@ func passError(w http.ResponseWriter, message string) {
 func addHeaders(w *http.ResponseWriter) {
 	(*w).Header().Set("Access-Control-Allow-Origin", "*")
 	(*w).Header().Set("Content-Type", "application/json")
-	//(*w).Header().Set("Access-Control-Allow-Headers", "Origin, Content-Type, Accept")
+	(*w).Header().Set("Access-Control-Allow-Headers", "Origin, Content-Type, Accept")
 	//(*w).Header().Set("Access-Control-Allow-Credentials", "true")
-	//(*w).Header().Set("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS, POST, PUT")
+	(*w).Header().Set("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS, POST, PUT")
 }
 
 func PrivateKeyToEncryptedPEM(key *rsa.PrivateKey, pwd string) ([]byte, error) {
@@ -84,7 +86,12 @@ func (rc *ResponseController) keysGenerator () *GeneratorController {
 }
 
 func (rc *ResponseController) GenerateKeys (w http.ResponseWriter, req *http.Request) {
-	if req.Method != "POST" { return }
+	addHeaders(&w)
+
+	if req.Method == "OPTIONS" {
+		handleOptionsRequest(w)
+		return
+	}
 
 	password := extractPasswordFromRequest(req).Password
 
@@ -92,8 +99,6 @@ func (rc *ResponseController) GenerateKeys (w http.ResponseWriter, req *http.Req
 		passError(w, "No password provided! Provide password.")
 		return
 	}
-
-	addHeaders(&w)
 
 	incrementErr, _ := rc.stateDelegate.Increment()
 
@@ -112,11 +117,11 @@ func (rc *ResponseController) GenerateKeys (w http.ResponseWriter, req *http.Req
 }
 
 func (rc *ResponseController) DownloadWallet (w http.ResponseWriter, req *http.Request) {
-	if req.Method != "POST" { return }
-
 	addHeaders(&w)
 
-	password := extractPasswordFromRequest(req).Password
+	if req.Method != "GET" { return }
+
+	password := req.URL.Query().Get("password")
 
 	if password == "" {
 		passError(w, "No password provided! Provide password.")
@@ -133,10 +138,14 @@ func (rc *ResponseController) DownloadWallet (w http.ResponseWriter, req *http.R
 		return
 	}
 
-	marshalledData, _ := json.Marshal(rc.stateDelegate.GeneratedWallet)
+	marshalledData := rc.stateDelegate.GeneratedWallet.Bytes()
 
-	w.Header().Set("Content-Type", "octet/stream")
-	w.Header().Set("Filename", fmt.Sprintf("gravity_wallet_%v", time.Now().Format(time.RFC822)))
+	filename := "gravity_wallet.json"
+	contentDisposition := fmt.Sprintf("attachment; filename=\"%v\"", filename)
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Filename", filename)
+	w.Header().Set("Content-Disposition", contentDisposition)
 
 	_, _ = fmt.Fprint(w, marshalledData)
 }
