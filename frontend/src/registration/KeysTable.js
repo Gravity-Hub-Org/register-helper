@@ -15,17 +15,28 @@ const ButtonsContainer = styled.div`
 `;
 
 function KeysTable(props) {
-  const { onNext } = props;
+  const { onNext, appState = {}, isAppStateEmpty } = props;
   const [tableDataSource, setTableDataSource] = React.useState(null);
+  const { value: applicationState, message: applicationStateMessage } = appState
 
   React.useEffect(() => {
     if (tableDataSource) return;
+    if (isAppStateEmpty) return;
+    if (applicationState !== 0) { return }
 
     (async () => {
-      const td = await mapGeneratedKeysToTable();
-      setTableDataSource(td);
+      try {
+        const td = await mapGeneratedKeysToTable();
+        setTableDataSource(td);
+      } catch (err) {
+        console.log({ err })
+      }
     })();
-  });
+  }, [tableDataSource, applicationState]);
+
+  if (applicationState !== 0) {
+    return applicationStateMessage || null
+  }
 
   if (!tableDataSource) {
     return "Loading...";

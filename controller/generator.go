@@ -5,7 +5,6 @@ import (
 	"crypto/ed25519"
 	"crypto/rand"
 	//"encoding/hex"
-	"fmt"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	eth "github.com/ethereum/go-ethereum/crypto"
 	"github.com/wavesplatform/go-lib-crypto"
@@ -85,7 +84,7 @@ func (c *GeneratorController) generateWaves() *GeneratedWavesWallet {
 }
 
 func (c *GeneratorController) mapWalletsToInternalConfig (waves *GeneratedWavesWallet, eth *GeneratedEthWallet) *internalNodeConfig {
-	fmt.Printf("ETH Private key: %v; Length: %v; \n", eth.PrivateKey, len([]byte(eth.PrivateKey)))
+	// fmt.Printf("ETH Private key: %v; Length: %v; \n", eth.PrivateKey, len([]byte(eth.PrivateKey)))
 	ethereumHexPrivateKey := hexutil.Encode([]byte(eth.PrivateKey))
 
 	_, ledgerPrivateKey, _ := ed25519.GenerateKey(rand.Reader)

@@ -16,6 +16,11 @@ type ResponseController struct {
 	privateKeysHashMap map[string]*rsa.PrivateKey
 }
 
+type commonMessageResponse struct {
+	Message string `json:"message"`
+	Value interface{} `json:"value"`
+}
+
 type errorResponse struct {
 	Message string `json:"message"`
 }
@@ -121,9 +126,9 @@ func (rc *ResponseController) ApplicationState (w http.ResponseWriter, req *http
 
 	addHeaders(&w)
 
-	w.Header().Set("Content-Type", "")
+	stateMessage := rc.stateDelegate.Message()
+	message := &commonMessageResponse{ Value: rc.stateDelegate.State, Message: stateMessage }
+	result, _ := json.Marshal(message)
 
-	result := rc.stateDelegate.State
-
-	_, _ = fmt.Fprint(w, int(result))
+	_, _ = fmt.Fprint(w, string(result))
 }

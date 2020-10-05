@@ -4,7 +4,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import TableCell from "@material-ui/core/TableCell";
 import FileCopyIcon from "@material-ui/icons/FileCopy";
 import { AppColor, AppFonts } from "../styled/global";
-import { requestGeneratedKeys } from "../services";
+import { requestGeneratedKeys } from "../services/base";
 
 const borderRadius = "6px";
 const TableContainer = styled.div`
@@ -95,7 +95,7 @@ function SimpleTableCell(props) {
       setNodeType(props.type);
       nodeRef.current.blur();
     }
-  });
+  }, [nodeType, props.type]);
 
   const handleCopy = () => {
     setNodeType("");
