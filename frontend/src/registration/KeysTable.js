@@ -5,8 +5,17 @@ import { Input, InputTitle } from "../base/Input";
 import { GradientButton } from "../base/Button";
 import SimpleTable, { mapGeneratedKeysToTable } from "./Table";
 
+const ButtonsContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: space-between;
 
-function KeysTable() {
+  padding: 25px;
+`;
+
+function KeysTable(props) {
+  const { onNext } = props;
   const [tableDataSource, setTableDataSource] = React.useState(null);
 
   React.useEffect(() => {
@@ -25,6 +34,10 @@ function KeysTable() {
   return (
     <div>
       <SimpleTable tableData={tableDataSource} />
+      <ButtonsContainer>
+        <GradientButton>Get Private Keys</GradientButton>
+        <GradientButton onClick={onNext}>Next</GradientButton>
+      </ButtonsContainer>
     </div>
   );
 }

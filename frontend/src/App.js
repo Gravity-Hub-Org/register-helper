@@ -16,8 +16,9 @@ import "./App.css";
 
 import { requestKeyGeneration, requestGeneratedKeys } from "./services";
 
+
 function App() {
-  const [stepState, setStepState] = useState(0);
+  const [stepState, setStepState] = useState(1);
   const [formState, setFormState] = useState({ password: "" });
   const [fileState, setFileState] = useState({});
   const [tableDataState, setTableDataState] = useState({});
@@ -49,7 +50,7 @@ function App() {
   }
 
   const stepsMap = {
-    // [0]: <EnterPassword onNext={handleNextStep} onPasswordUpdate={handlePasswordUpdate} />,
+    [0]: <EnterPassword onNext={handleNextStep} onPasswordUpdate={handlePasswordUpdate} />,
     // [1]: (
     //   <>
     //     <a href={fileState.href} download={"privkey"}>
@@ -59,8 +60,8 @@ function App() {
     //     </a>
     //   </>
     // ),
-    [0]: <KeysTable />,
-    // [2]: <DeploymentSuccess />,
+    [1]: <KeysTable />,
+    [2]: <DeploymentSuccess />,
     // [2]: (
     //   <>
     //     <SimpleTable tableData={tableDataState} />

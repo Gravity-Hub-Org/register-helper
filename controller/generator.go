@@ -14,7 +14,6 @@ import (
 
 type GeneratorController struct {}
 
-
 type GeneratedEthWallet struct {
 	Address string `json:"address"`
 	PrivateKey string `json:"private_key"`

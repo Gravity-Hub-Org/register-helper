@@ -12,7 +12,18 @@ import (
 )
 
 type ResponseController struct {
+	stateDelegate *StateController
 	privateKeysHashMap map[string]*rsa.PrivateKey
+}
+
+type errorResponse struct {
+	Message string
+}
+
+func (rc *ResponseController) New(stateDelegate *StateController) *ResponseController {
+	controller := &ResponseController{}
+	controller.stateDelegate = stateDelegate
+	return controller
 }
 
 func (rc *ResponseController) ValidateLogin (w http.ResponseWriter, req *http.Request) {
@@ -21,6 +32,7 @@ func (rc *ResponseController) ValidateLogin (w http.ResponseWriter, req *http.Re
 
 func addHeaders(w *http.ResponseWriter) {
 	(*w).Header().Set("Access-Control-Allow-Origin", "*")
+	(*w).Header().Set("Content-Type", "application/json")
 	//(*w).Header().Set("Access-Control-Allow-Headers", "Origin, Content-Type, Accept")
 	//(*w).Header().Set("Access-Control-Allow-Credentials", "true")
 	//(*w).Header().Set("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS, POST, PUT")
@@ -52,12 +64,19 @@ func (rc *ResponseController) keysGenerator () *GeneratorController {
 
 func (rc *ResponseController) GenerateKeys (w http.ResponseWriter, req *http.Request) {
 	if req.Method != "GET" { return }
+	
+	addHeaders(&w)
+
+	incrementErr, _ := rc.stateDelegate.Increment()
+
+	if incrementErr != nil {
+		result, _ := json.Marshal(&errorResponse{ Message: string(incrementErr) })
+
+		_, _ = fmt.Fprint(w, result)
+		return
+	}
 
 	result := rc.keysGenerator().Generate()
-
-	w.Header().Set("Content-Type", "application/json")
-
-	addHeaders(&w)
 
 	marshalledResult, _ := json.Marshal(result)
 
@@ -94,4 +113,16 @@ func (rc *ResponseController) HandlePass (w http.ResponseWriter, req *http.Reque
 	addHeaders(&w)
 
 	_, _ = fmt.Fprint(w, marshalledPrivateKey)
+}
+
+func (rc *ResponseController) ApplicationState (w http.ResponseWriter, req *http.Request) {
+	if req.Method != "GET" { return }
+
+	addHeaders(&w)
+
+	w.Header().Set("Content-Type", "")
+
+	result := rc.stateDelegate.State
+
+	_, _ = fmt.Fprint(w, int(result))
 }
