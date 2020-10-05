@@ -17,7 +17,7 @@ type ResponseController struct {
 }
 
 type errorResponse struct {
-	Message string
+	Message string `json:"message"`
 }
 
 func (rc *ResponseController) New(stateDelegate *StateController) *ResponseController {
@@ -64,15 +64,16 @@ func (rc *ResponseController) keysGenerator () *GeneratorController {
 
 func (rc *ResponseController) GenerateKeys (w http.ResponseWriter, req *http.Request) {
 	if req.Method != "GET" { return }
-	
+
 	addHeaders(&w)
 
 	incrementErr, _ := rc.stateDelegate.Increment()
 
 	if incrementErr != nil {
-		result, _ := json.Marshal(&errorResponse{ Message: string(incrementErr) })
+		result, _ := json.Marshal(&errorResponse{ Message: incrementErr.Error() })
+		w.WriteHeader(http.StatusBadRequest)
 
-		_, _ = fmt.Fprint(w, result)
+		_, _ = fmt.Fprint(w, string(result))
 		return
 	}
 
