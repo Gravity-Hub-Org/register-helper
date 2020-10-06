@@ -1,0 +1,21 @@
+kind: pipeline
+type: docker
+name: gravity-keys-generator
+
+trigger:
+  branch:
+    - master
+    - drone
+
+pipeline:
+  publish-data-extractor:
+    image: plugins/docker
+    dockerfile: ./Dockerfile
+    context: .
+    repo: gravityhuborg/gravity-keys-generator
+    tags: "${DRONE_BRANCH}"
+    secrets: [docker_username,docker_password]
+    when:
+      branch:
+        - master
+        - drone
