@@ -15,8 +15,7 @@ type CommandController struct {}
 
 func (controller *CommandController) home() string {
 	if gravityHome == "" {
-		home := os.Getenv("HOME")
-		return home + "/gravity-ledger"
+		return "/etc/gravity"
 	}
 
 	return gravityHome

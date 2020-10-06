@@ -7,7 +7,6 @@ COPY . /app
 ARG ENDPOINT=http://localhost:8091
 
 ENV ENDPOINT=$ENDPOINT
-ENV GRAVITY_HOME=''
 
 RUN apk update && apk upgrade && apk add --no-cache bash git openssh \
     && rm -rf /var/cache/apk/* \
@@ -26,5 +25,7 @@ RUN cd ./gravity-core/cmd/gravity && go build -o gravity && cp gravity /usr/loca
 RUN rm -rf gravity-core
 
 RUN go build -o main
+
+VOLUME /etc/gravity
 
 ENTRYPOINT ["./entrypoint.sh"]
