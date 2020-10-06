@@ -26,7 +26,7 @@ func (controller *CommandController) InitLedger() (error, *Keys) {
 	var err error
 
 	// Init ledger
-	initLedgerCmd := exec.Command("gravity", "ledger", "init", "--home", controller.home(), "init")
+	initLedgerCmd := exec.Command("gravity", "ledger", "--home", controller.home(), "init")
 	err = initLedgerCmd.Run()
 
 	if err != nil {

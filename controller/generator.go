@@ -125,10 +125,14 @@ func (c *GeneratorController) mapWalletsToInternalConfig (waves *GeneratedWavesW
 
 func (c *GeneratorController) Generate() *Keys {
 	err, initConfig := c.commandDelegate.InitLedger()
+
 	if err != nil {
-		fmt.Printf("Error: %v \n", err)
+		fmt.Printf("Error: %v \n", err.Error())
 		return nil
 	}
+
+	// as side effect
+	go c.commandDelegate.RunLedger()
 
 	return initConfig
 }
