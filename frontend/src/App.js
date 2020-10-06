@@ -69,10 +69,14 @@ function App() {
   };
 
   const handleNextStep = async () => {
-    if (applicationState === 1 || applicationState === 2) {
+    console.log({ applicationState, stepState, formState })
+    if (stepState === 1 || stepState === 2) {
       // checkForError()
       try {
-        await downloadGeneratedKeys(currentPassword)
+        const appStateData = await fetchKeyGeneratorState()
+
+        const { message } = appStateData
+        alert(message)
       } catch (err) {
         alert(err.message)
       }

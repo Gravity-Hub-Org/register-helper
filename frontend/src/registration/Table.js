@@ -6,6 +6,10 @@ import FileCopyIcon from "@material-ui/icons/FileCopy";
 import { AppColor, AppFonts } from "../styled/global";
 import { requestGeneratedKeys } from "../services/base";
 
+import wavesLogo from '../logos/waves.svg'
+import ledgerLogo from '../logos/ledger.svg'
+import ethereumLogo from '../logos/ethereum.svg'
+
 const borderRadius = "6px";
 const TableContainer = styled.div`
   width: calc(100vw - 12px);
@@ -73,11 +77,18 @@ const useStyles = makeStyles({
 export const mapGeneratedKeysToTable = async (password) => {
   const data = await requestGeneratedKeys(password);
 
+  const { ethereum, waves } = data.TargetChains
+  const { Validator: validator } = data
+
+  waves.seed = waves.PrivKey
+  delete waves.PrivKey
+
   const td = {
     heading: ["", "Address", "Private Key", "Public Key", "Seed"],
     rows: [
-      { ...data.eth, name: "ETH" },
-      { ...data.waves, name: "WAVES" },
+      { ...ethereum, name: "ETH", logo: <img src={ethereumLogo} /> },
+      { ...waves, name: "WAVES", logo: <img src={wavesLogo} /> },
+      { ...validator, name: "Ledger", logo: <img src={ledgerLogo} /> },
     ],
   };
 
@@ -104,6 +115,7 @@ function SimpleTableCell(props) {
   return (
     <TableCell align="right">
       <div className="inner" style={{ display: props.value ? "" : "none" }}>
+        {props.image || null}
         {props.type === "default" ? (
           <div>{props.value}</div>
         ) : (
@@ -138,10 +150,10 @@ export default function SimpleTable(props) {
         <tbody>
           {rows.map((row) => (
             <tr key={row.address}>
-              <SimpleTableCell value={row.name} type="default" />
-              <SimpleTableCell value={row.address} />
-              <SimpleTableCell value={row.private_key} type="password" />
-              <SimpleTableCell value={row.public_key} />
+              <SimpleTableCell value={row.name} type="default" image={row.logo}/>
+              <SimpleTableCell value={row.Address} />
+              <SimpleTableCell value={row.PrivKey} type="password" />
+              <SimpleTableCell value={row.PubKey} />
               <SimpleTableCell value={row.seed} type="password" />
             </tr>
           ))}

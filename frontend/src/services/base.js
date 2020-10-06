@@ -27,9 +27,10 @@ export async function requestGeneratedKeys(password) {
 }
 
 export async function downloadGeneratedKeys(password) {
+  console.log({ password })
   const response = await axios.get("/download", {
     baseURL: baseURL,
-    query: { password },
+    params: { password },
     headers: {
       "Content-Type": "application/json",
     },
