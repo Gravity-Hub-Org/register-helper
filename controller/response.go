@@ -138,7 +138,7 @@ func (rc *ResponseController) DownloadWallet (w http.ResponseWriter, req *http.R
 		return
 	}
 
-	marshalledData := rc.stateDelegate.GeneratedWallet.Bytes()
+	marshalledData := string(rc.stateDelegate.GeneratedWallet.Bytes())
 
 	filename := "gravity_wallet.json"
 	contentDisposition := fmt.Sprintf("attachment; filename=\"%v\"", filename)
