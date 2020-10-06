@@ -7,7 +7,6 @@ import (
 	"github.com/Gravity-Hub-Org/register-helper/v2/controller"
 )
 
-// const port = "8091"
 var port string
 
 func init() {
@@ -17,6 +16,9 @@ func init() {
 }
 
 func main () {
+        frontend := http.FileServer(http.Dir("./frontend"))
+        http.Handle("/", frontend)
+
 	stateController := (&controller.StateController{}).New()
 	rc := (&controller.ResponseController{}).New(stateController)
 
