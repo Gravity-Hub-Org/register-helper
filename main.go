@@ -16,7 +16,7 @@ func init() {
 }
 
 func main () {
-        frontend := http.FileServer(http.Dir("./frontend"))
+        frontend := http.FileServer(http.Dir("./frontend/build"))
         http.Handle("/", frontend)
 
 	stateController := (&controller.StateController{}).New()
