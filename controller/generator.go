@@ -5,7 +5,10 @@ import (
 	"crypto/ecdsa"
 	"crypto/ed25519"
 	"crypto/rand"
+	"fmt"
+
 	//"encoding/hex"
+	//config "github.com/Gravity-Tech/gravity-core/config"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	eth "github.com/ethereum/go-ethereum/crypto"
 	"github.com/wavesplatform/go-lib-crypto"
@@ -13,7 +16,26 @@ import (
 	"encoding/json"
 )
 
-type GeneratorController struct {}
+type Keys struct {
+	Validator    Key
+	TargetChains map[string]Key
+}
+
+type Key struct {
+	Address string
+	PubKey  string
+	PrivKey string
+}
+
+func (keys *Keys) Bytes() []byte {
+	result, _ := json.Marshal(keys)
+
+	return result
+}
+
+type GeneratorController struct {
+	commandDelegate *CommandController
+}
 
 type GeneratedEthWallet struct {
 	Address string `json:"address"`
@@ -101,12 +123,12 @@ func (c *GeneratorController) mapWalletsToInternalConfig (waves *GeneratedWavesW
 	return &internalNodeConfig{ Waves: string(waves.Seed), Ethereum: ethereumHexPrivateKey, Ledger: ledgerHexPrivateKey }
 }
 
-func (c *GeneratorController) Generate() *GeneratedWallet {
-	waves, eth := c.generateWaves(), c.generateEth()
-	wallet := &GeneratedWallet{ Waves: waves, Eth: eth }
+func (c *GeneratorController) Generate() *Keys {
+	err, initConfig := c.commandDelegate.InitLedger()
+	if err != nil {
+		fmt.Printf("Error: %v \n", err)
+		return nil
+	}
 
-	internalConfig := c.mapWalletsToInternalConfig(waves, eth)
-	wallet.InternalConfig = internalConfig
-
-	return wallet
+	return initConfig
 }

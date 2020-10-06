@@ -14,7 +14,7 @@ const (
 
 type StateController struct {
 	State AppState
-	GeneratedWallet *GeneratedWallet
+	GeneratedWallet *Keys
 	WalletPassword string
 }
 
@@ -37,7 +37,7 @@ func (sc *StateController) Message() string {
 
 func (sc *StateController) Increment() (error, AppState) {
 	if sc.State == Generated {
-		return fmt.Errorf("Error occured. Keys generated already."), Generated
+		return fmt.Errorf("keys generated already"), Generated
 	}
 
 	sc.State = Generated

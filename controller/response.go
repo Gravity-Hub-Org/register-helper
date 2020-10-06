@@ -82,7 +82,9 @@ func PrivateKeyToEncryptedPEM(key *rsa.PrivateKey, pwd string) ([]byte, error) {
 }
 
 func (rc *ResponseController) keysGenerator () *GeneratorController {
-	return &GeneratorController{}
+	return &GeneratorController{
+		commandDelegate: &CommandController{},
+	}
 }
 
 func (rc *ResponseController) GenerateKeys (w http.ResponseWriter, req *http.Request) {
