@@ -13,7 +13,7 @@ pipeline:
     dockerfile: ./Dockerfile
     context: .
     repo: gravityhuborg/gravity-keys-generator
-    tags: "${DRONE_BRANCH}"
+    tags: [latest]
     secrets: [docker_username,docker_password]
     when:
       branch:
