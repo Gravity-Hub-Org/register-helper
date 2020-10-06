@@ -20,6 +20,10 @@ WORKDIR /generator
 
 COPY --from=frontend /app/ /generator
 
+RUN git clone https://github.com/Gravity-Tech/gravity-core
+RUN cd ./gravity-core/cmd/gravity && go build -o gravity && cp gravity /usr/local/bin 
+RUN rm -rf gravity-core
+
 RUN go build -o main
 
 ENTRYPOINT ["./entrypoint.sh"]
