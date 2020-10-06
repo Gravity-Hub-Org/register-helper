@@ -10,7 +10,7 @@ import (
 var port string
 
 func init() {
-	flag.StringVar(&port, "port", "8091", "Service port")
+	flag.StringVar(&port, "port", "8111", "Service port")
 
 	flag.Parse()
 }

@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export const baseURL = process.env.ENDPOINT || "http://localhost:8091";
+export const baseURL = `http://${window.location.hostname}:8111` // process.env.ENDPOINT || "http://localhost:8091";
 
 export async function fetchKeyGeneratorState() {
   const response = await axios.get("/state", {
