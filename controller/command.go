@@ -52,7 +52,7 @@ func (controller *CommandController) InitLedger() (error, *Keys) {
 	return nil, &config
 }
 
-func (controller *CommandController) RunLedger() (error, int) {
+func (controller *CommandController) RunLedger() (error, *exec.Cmd) {
 	var err error
 
 	// Start ledger
@@ -60,14 +60,19 @@ func (controller *CommandController) RunLedger() (error, int) {
 		"gravity", "ledger",
 		"--home", controller.home(), "start",
 		"--rpc", "127.0.0.1:2500",
-		"--bootstrap", "http://127.0.0.1:26657",
 	)
 
 	err = startLedgerCmd.Run()
 
 	if err != nil {
-		return err, 1
+		return err, nil
 	}
 
-	return nil, 0
+        outfile, err := os.Create(controller.home() + "/out.txt")
+        if err != nil {
+            panic(err)
+        }
+        startLedgerCmd.Stdout = outfile
+
+	return nil, startLedgerCmd
 }

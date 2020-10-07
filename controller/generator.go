@@ -127,12 +127,15 @@ func (c *GeneratorController) Generate() *Keys {
 	err, initConfig := c.commandDelegate.InitLedger()
 
 	if err != nil {
-		fmt.Printf("Error: %v \n", err.Error())
+		fmt.Printf("Error on ledger init: %v \n", err.Error())
 		return nil
 	}
 
-	// as side effect
-	go c.commandDelegate.RunLedger()
+	err, _ = c.commandDelegate.RunLedger()
+	if err != nil {
+                fmt.Printf("Error on ledger start: %v \n", err.Error())
+                return nil
+        }
 
 	return initConfig
 }
