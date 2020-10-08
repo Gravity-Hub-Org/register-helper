@@ -16,7 +16,7 @@ const ButtonsContainer = styled.div`
 `;
 
 function KeysTable(props) {
-  const { onNext, appState = {}, isAppStateEmpty, form } = props;
+  const { appState = {}, isAppStateEmpty, form, handleDeploy } = props;
   const { password } = form;
   const [tableDataSource, setTableDataSource] = React.useState(null);
   const { value: applicationState, message: applicationStateMessage } = appState
@@ -53,7 +53,7 @@ function KeysTable(props) {
       <SimpleTable tableData={tableDataSource} />
       <ButtonsContainer>
         <GradientLink target="_blank" download href={`${baseURL}/download?password=${password}`}>Get Private Keys</GradientLink>
-        <GradientButton onClick={onNext}>Deploy Node</GradientButton>
+        <GradientButton onClick={handleDeploy}>Deploy Node</GradientButton>
       </ButtonsContainer>
     </div>
   );

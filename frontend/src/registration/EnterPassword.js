@@ -31,6 +31,16 @@ const InputFlexBox = styled.div`
   }
 `;
 
+export const ButtonsCont = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+
+  & > :nth-child(2) {
+    margin-top: 8px;
+  }
+`
+
 const ErrorTitle = styled(InputTitle)`
   color: red;
   visibility: ${(props) => (!props.isValid ? "unset" : "hidden")};
@@ -41,7 +51,7 @@ const getValidationErrorsDefault = () => ({
   isValid: true,
 });
 function EnterPassword(props) {
-  const { title, appState } = props
+  const { title, appState, handleDeploy } = props
 
   const [validationErrors, setValidationErrors] = React.useState(
     getValidationErrorsDefault()
@@ -95,10 +105,10 @@ function EnterPassword(props) {
   const { value: applicationState, message: applicationStateMessage } = appState
 
   const nextButton = applicationState !== 0 ? (
-    <>
+    <ButtonsCont>
       <GradientLink target="_blank" download href={`${baseURL}/download?password=${formState.password}`}>{title}</GradientLink>
-      {applicationState === 1 && <GradientButton onClick={handleNext}>Deploy Node</GradientButton>}
-    </>
+      {applicationState === 1 && <GradientButton onClick={handleDeploy}>Deploy Node</GradientButton>}
+    </ButtonsCont>
   ) : (
     <GradientButton onClick={handleNext}>{title}</GradientButton>
   )

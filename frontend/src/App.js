@@ -71,25 +71,12 @@ function App() {
   const handleNextStep = async () => {
     console.log({ applicationState, stepState, formState })
 
-    if (stepState === 1) {
+    if (stepState === 1 || stepState === 2) {
       // checkForError()
       try {
-        const deployResult = await requestNodeDeployment()
+        const deployResult = await fetchKeyGeneratorState()
 
         const { message } = deployResult
-        alert(message)
-      } catch (err) {
-        alert(err.message)
-      }
-
-      return
-    }
-    if (stepState === 2) {
-      // checkForError()
-      try {
-        const appStateData = await fetchKeyGeneratorState()
-
-        const { message } = appStateData
         alert(message)
       } catch (err) {
         alert(err.message)
@@ -105,13 +92,26 @@ function App() {
     }
   };
 
+  const handleDeploy = async () => {
+    console.log({ applicationState, stepState, formState })
+
+    try {
+      const appStateData = await requestNodeDeployment()
+
+      const { message } = appStateData
+      alert(message)
+    } catch (err) {
+      alert(err.message)
+    }
+  }
+
   const handlePasswordUpdate = password => {
     setFormState({ password })
   }
 
   const stepsMap = {
-    [0]: <EnterPassword onNext={handleNextStep} appState={applicationStateData} onPasswordUpdate={handlePasswordUpdate} title={enterPasswordTitle}/>,
-    [1]: <KeysTable onNext={handleNextStep} appState={applicationStateData} isAppStateEmpty={isAppStateEmpty} form={formState}/>,
+    [0]: <EnterPassword onNext={handleNextStep} handleDeploy={handleDeploy} appState={applicationStateData} onPasswordUpdate={handlePasswordUpdate} title={enterPasswordTitle}/>,
+    [1]: <KeysTable onNext={handleNextStep} appState={applicationStateData} handleDeploy={handleDeploy} isAppStateEmpty={isAppStateEmpty} form={formState}/>,
   };
 
   const currentStep = stepsMap[stepState];
