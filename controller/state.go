@@ -43,7 +43,7 @@ func (sc *StateController) OnKeysGenerated() (error, AppState) {
 }
 
 func (sc *StateController) OnDeployStart() (error, AppState) {
-	if sc.State == Generated {
+	if sc.State == Generated || sc.State == Deployed  {
 		sc.State = Deployed
 		return nil, Deployed
 	}

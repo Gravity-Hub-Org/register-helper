@@ -1,13 +1,19 @@
 package controller
 
 import (
+	"bytes"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/json"
 	"encoding/pem"
 	"fmt"
+	"io"
+	"io/ioutil"
+	"log"
 	"net/http"
+	"github.com/alexmullins/zip"
+	"os"
 )
 
 type ResponseController struct {
@@ -142,16 +148,38 @@ func (rc *ResponseController) DownloadWallet (w http.ResponseWriter, req *http.R
 		return
 	}
 
-	marshalledData := string(rc.stateDelegate.GeneratedWallet.Bytes())
+	marshalledData := rc.stateDelegate.GeneratedWallet.Bytes()
 
-	filename := "gravity_wallet.json"
+	contents := marshalledData
+	fzip, err := os.Create(`./gravity_wallet.zip`)
+
+	os.Chmod(`./gravity_wallet.zip`, 0777)
+
+	if err != nil {
+		log.Fatalln(err)
+	}
+	zipw := zip.NewWriter(fzip)
+	writer, err := zipw.Encrypt(`gravity_wallet.json`, password)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	_, err = io.Copy(writer, bytes.NewReader(contents))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	zipw.Close()
+
+	archiveBytes, _ := ioutil.ReadFile("gravity_wallet.zip")
+
+	filename := "gravity_wallet.zip"
 	contentDisposition := fmt.Sprintf("attachment; filename=\"%v\"", filename)
 
-	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Filename", filename)
+	w.Header().Set("Content-Type", "application/zip")
 	w.Header().Set("Content-Disposition", contentDisposition)
 
-	_, _ = fmt.Fprint(w, marshalledData)
+	_, _ = w.Write(archiveBytes)
 }
 
 func (rc *ResponseController) ApplicationState (w http.ResponseWriter, req *http.Request) {
@@ -171,7 +199,7 @@ func (rc *ResponseController) RunLedger (w http.ResponseWriter, req *http.Reques
 
 	if req.Method != "GET" { return }
 
-	incrementErr, _ := rc.stateDelegate.OnKeysGenerated()
+	incrementErr, _ := rc.stateDelegate.OnDeployStart()
 
 	if incrementErr != nil {
 		passError(w, incrementErr.Error())
@@ -189,10 +217,7 @@ func (rc *ResponseController) RunLedger (w http.ResponseWriter, req *http.Reques
 			_, _ = fmt.Fprint(w, string(result))
 			return
 		}
-	} else {
-
 	}
-
 
 	result, _ := json.Marshal(&commonMessageResponse{ Value: nil, Message: "Node is deployed!" })
 	_, _ = fmt.Fprint(w, string(result))

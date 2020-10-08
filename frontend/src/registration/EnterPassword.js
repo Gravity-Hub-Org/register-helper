@@ -95,7 +95,10 @@ function EnterPassword(props) {
   const { value: applicationState, message: applicationStateMessage } = appState
 
   const nextButton = applicationState !== 0 ? (
-    <GradientLink target="_blank" download href={`${baseURL}/download?password=${formState.password}`}>{title}</GradientLink>
+    <>
+      <GradientLink target="_blank" download href={`${baseURL}/download?password=${formState.password}`}>{title}</GradientLink>
+      {applicationState === 1 && <GradientButton onClick={handleNext}>Deploy Node</GradientButton>}
+    </>
   ) : (
     <GradientButton onClick={handleNext}>{title}</GradientButton>
   )

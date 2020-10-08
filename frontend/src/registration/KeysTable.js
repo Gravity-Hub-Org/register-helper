@@ -53,7 +53,7 @@ function KeysTable(props) {
       <SimpleTable tableData={tableDataSource} />
       <ButtonsContainer>
         <GradientLink target="_blank" download href={`${baseURL}/download?password=${password}`}>Get Private Keys</GradientLink>
-        <GradientButton onClick={onNext}>Next</GradientButton>
+        <GradientButton onClick={onNext}>Deploy Node</GradientButton>
       </ButtonsContainer>
     </div>
   );

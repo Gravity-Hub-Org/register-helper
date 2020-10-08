@@ -14,7 +14,7 @@ import { HeadingTitle } from "./base/Title";
 import logo from "./logo.svg";
 import "./App.css";
 
-import { downloadGeneratedKeys, requestGeneratedKeys, fetchKeyGeneratorState } from "./services/base";
+import { downloadGeneratedKeys, requestGeneratedKeys, fetchKeyGeneratorState, requestNodeDeployment } from "./services/base";
 
 
 function App() {
@@ -70,7 +70,21 @@ function App() {
 
   const handleNextStep = async () => {
     console.log({ applicationState, stepState, formState })
-    if (stepState === 1 || stepState === 2) {
+
+    if (stepState === 1) {
+      // checkForError()
+      try {
+        const deployResult = await requestNodeDeployment()
+
+        const { message } = deployResult
+        alert(message)
+      } catch (err) {
+        alert(err.message)
+      }
+
+      return
+    }
+    if (stepState === 2) {
       // checkForError()
       try {
         const appStateData = await fetchKeyGeneratorState()

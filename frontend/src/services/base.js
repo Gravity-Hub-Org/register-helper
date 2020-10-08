@@ -26,6 +26,18 @@ export async function requestGeneratedKeys(password) {
   return response.data; // Root
 }
 
+export async function requestNodeDeployment() {
+  const response = await axios.get("/run", {
+    baseURL: baseURL,
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  return response.data; // Root
+}
+
+
 export async function downloadGeneratedKeys(password) {
   console.log({ password })
   const response = await axios.get("/download", {

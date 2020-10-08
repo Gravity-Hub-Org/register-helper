@@ -21,6 +21,8 @@ func main () {
 	frontend := http.FileServer(http.Dir("./frontend/build"))
 	http.Handle("/", frontend)
 
+	fmt.Printf("is debug: %v \n", isDebug)
+
 	stateController := (&controller.StateController{}).New()
 	rc := (&controller.ResponseController{}).New(stateController, isDebug)
 
