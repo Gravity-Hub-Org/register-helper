@@ -123,7 +123,31 @@ func (c *GeneratorController) mapWalletsToInternalConfig (waves *GeneratedWavesW
 	return &internalNodeConfig{ Waves: string(waves.Seed), Ethereum: ethereumHexPrivateKey, Ledger: ledgerHexPrivateKey }
 }
 
-func (c *GeneratorController) Generate() *Keys {
+func (c *GeneratorController) Generate(isDebug bool) *Keys {
+	if isDebug {
+		targetChains := make(map[string]Key, 2)
+		targetChains["ethereum"] = Key{
+			Address: "0x1d892ba5e94d9092fbb82156e27853ec4331b4d00479ac1a634da526f13143d1",
+			PubKey: "0x1d892ba5e94d9092fbb82156e27853ec4331b4d00479ac1a634da526f13143d1",
+			PrivKey: "0x1c55a6202d3bd7dba31e231c65fdac82d667dfb8ba4f1467c1c206b04badde43",
+		}
+		targetChains["waves"] = Key{
+			Address: "0x1d892ba5e94d9092fbb82156e27853ec4331b4d00479ac1a634da526f13143d1",
+			PubKey: "0x1d892ba5e94d9092fbb82156e27853ec4331b4d00479ac1a634da526f13143d1",
+			PrivKey: "0x1c55a6202d3bd7dba31e231c65fdac82d667dfb8ba4f1467c1c206b04badde43",
+		}
+
+		return &Keys{
+			Validator: Key{
+				Address: "0x1d892ba5e94d9092fbb82156e27853ec4331b4d00479ac1a634da526f13143d1",
+				PubKey: "0x1d892ba5e94d9092fbb82156e27853ec4331b4d00479ac1a634da526f13143d1",
+				PrivKey: "0x1c55a6202d3bd7dba31e231c65fdac82d667dfb8ba4f1467c1c206b04badde43",
+			},
+			TargetChains: targetChains,
+		}
+	}
+
+
 	err, initConfig := c.commandDelegate.InitLedger()
 
 	if err != nil {
@@ -131,7 +155,6 @@ func (c *GeneratorController) Generate() *Keys {
 		return nil
 	}
 
-	// go c.commandDelegate.RunLedger()
-
 	return initConfig
 }
+

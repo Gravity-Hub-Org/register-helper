@@ -11,6 +11,7 @@ import (
 )
 
 type ResponseController struct {
+	isDebug bool
 	stateDelegate *StateController
 	privateKeysHashMap map[string]*rsa.PrivateKey
 }
@@ -34,9 +35,10 @@ func extractPasswordFromRequest(req *http.Request) *walletPassword {
 	return &requestBody
 }
 
-func (rc *ResponseController) New(stateDelegate *StateController) *ResponseController {
+func (rc *ResponseController) New(stateDelegate *StateController, isDebug bool) *ResponseController {
 	controller := &ResponseController{}
 	controller.stateDelegate = stateDelegate
+	controller.isDebug = isDebug
 	return controller
 }
 
@@ -102,14 +104,14 @@ func (rc *ResponseController) GenerateKeys (w http.ResponseWriter, req *http.Req
 		return
 	}
 
-	incrementErr, _ := rc.stateDelegate.Increment()
+	incrementErr, _ := rc.stateDelegate.OnKeysGenerated()
 
 	if incrementErr != nil {
 		passError(w, incrementErr.Error())
 		return
 	}
 
-	result := rc.keysGenerator().Generate()
+	result := rc.keysGenerator().Generate(rc.isDebug)
 	rc.stateDelegate.GeneratedWallet = result
 	rc.stateDelegate.WalletPassword = password
 
@@ -161,5 +163,37 @@ func (rc *ResponseController) ApplicationState (w http.ResponseWriter, req *http
 	message := &commonMessageResponse{ Value: rc.stateDelegate.State, Message: stateMessage }
 	result, _ := json.Marshal(message)
 
+	_, _ = fmt.Fprint(w, string(result))
+}
+
+func (rc *ResponseController) RunLedger (w http.ResponseWriter, req *http.Request) {
+	addHeaders(&w)
+
+	if req.Method != "GET" { return }
+
+	incrementErr, _ := rc.stateDelegate.OnKeysGenerated()
+
+	if incrementErr != nil {
+		passError(w, incrementErr.Error())
+		return
+	}
+
+	var err error
+
+	if !rc.isDebug {
+		err, _ = rc.keysGenerator().commandDelegate.RunLedger()
+
+		if err != nil {
+			message := &commonMessageResponse{ Value: nil, Message: "Error occured on ledger start" }
+			result, _ := json.Marshal(message)
+			_, _ = fmt.Fprint(w, string(result))
+			return
+		}
+	} else {
+
+	}
+
+
+	result, _ := json.Marshal(&commonMessageResponse{ Value: nil, Message: "Node is deployed!" })
 	_, _ = fmt.Fprint(w, string(result))
 }

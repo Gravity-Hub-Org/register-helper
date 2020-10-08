@@ -1,15 +1,13 @@
 package controller
 
-import (
-	"fmt"
-)
+import "fmt"
 
 type AppState int
 
 const (
 	Initialised AppState = iota
-	DeployProcessing
 	Generated
+	Deployed
 )
 
 type StateController struct {
@@ -26,21 +24,29 @@ func (sc *StateController) Message() string {
 	switch sc.State {
 	case Initialised:
 		return "Keys generator is initialised"
-	case DeployProcessing:
-		return "Node deploy is in process!"
+	case Deployed:
+		return "Node is deployed!"
 	case Generated:
-		return "Node is deployed."
+		return "Node keys generated."
 	}
 
 	return ""
 } 
 
-func (sc *StateController) Increment() (error, AppState) {
-	if sc.State == Generated {
-		return fmt.Errorf("keys generated already"), Generated
+func (sc *StateController) OnKeysGenerated() (error, AppState) {
+	if sc.State == Initialised {
+		sc.State = Generated
+		return nil, Generated
 	}
 
-	sc.State = Generated
+	return fmt.Errorf("keys generated already"), sc.State
+}
 
-	return nil, sc.State
+func (sc *StateController) OnDeployStart() (error, AppState) {
+	if sc.State == Generated {
+		sc.State = Deployed
+		return nil, Deployed
+	}
+
+	return fmt.Errorf("can't deploy node. Keys are not generated"), sc.State
 }
